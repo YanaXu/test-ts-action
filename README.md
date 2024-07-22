@@ -1,5 +1,7 @@
 # Hello, World! JavaScript Action
 
+Add a line for test.
+
 [![GitHub Super-Linter](https://github.com/actions/hello-world-javascript-action/actions/workflows/linter.yml/badge.svg)](https://github.com/super-linter/super-linter)
 ![CI](https://github.com/actions/hello-world-javascript-action/actions/workflows/ci.yml/badge.svg)
 
