@@ -51,7 +51,6 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        Set-Location ../azpsdocs
         $httpConfigs = (git config --get-regexp "http" )
         $authConfig = $httpConfigs | Where-Object {$_ -like "*AUTHORIZATION*"}
         $token = ($authConfig -split ' ')[-1]
